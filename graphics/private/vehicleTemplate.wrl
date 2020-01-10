@@ -1,0 +1,185 @@
+#VRML V2.0 utf8
+#
+# Generic Vehicle template - translates and rotates vehicle object in 3-D space
+# Designed for use with VRMLplot version 1.1
+#
+# To use with VRMLplot.m, pass VRMLplot a matrix containing 7 columns and
+# ask it to use that matrix to animate this file.
+#
+# The order of the columns in the input matrix is:
+# 1. time (seconds)
+# 2. position along world x axis (meters)
+# 3. position along world y axis (meters)
+# 4. position along world z axis (meters)
+# 5. rotation about vehicle z axis (radians)
+# 6. rotation about vehicle y axis (radians)
+# 7. rotation about vehicle x axis (radians)
+#
+# Example:
+#
+# >> L = [ 0 0 0 0 0 0 0 ;
+#          1 0 0 1 0 0 0 ;
+#          2 0 0 1 0 0 pi/2;
+#          4 0 0 0 0 0 0 ];
+#
+# >> VRMLplot(L,'animation=vehicleTemplate.wrl')
+#
+# This generates an animated set of axes which moves 1 meter in the +z 
+# direction in the first second, rotates pi/2 radians about the +x 
+# axis during the next second and then moves back to the starting position.
+#
+# To use your own vehicle model:
+# 1)  save this file under a new name: "yourNewFilename.wrl"
+# 2)  change "PROTO vehicleTemplate" to "PROTO yourNewFilename"
+# 3)  Then insert a model for your own object/vehicle in the space indicated by
+#     comments later in this file.  (You could use an EXTERNPROTO.)
+#     If you use the PROTO field values for transparency and color in your
+#     model then VRMLplot will be able to do a better job of automatically
+#     coloring and adding shadows.
+#
+# Note - the name of the PROTO at the top of this file must be the same as the
+# filename for this file (minus the .wrl extension) - otherwise VRMLplot won't
+# parse it correctly.
+#
+# This file may be freely copied and altered BUT IF YOU CHANGE IT, 
+# PLEASE RENAME IT AND COMMENT THE CHANGES
+# Copyright Craig Sayers and WHOI 1996.
+#
+Group{
+PROTO vehicleTemplate[ field SFColor color 0.3 0.3 0.3
+                     field SFFloat transparency 0.0
+                     eventIn SFVec3f transxyz
+                     eventIn SFRotation rotz
+                     eventIn SFRotation roty
+                     eventIn SFRotation rotx
+]
+{
+  Transform 
+  {
+    set_translation IS transxyz
+    children Transform 
+    {
+      set_rotation IS rotz
+      children Transform 
+      {
+	  set_rotation IS roty
+        children Transform 
+        {
+          set_rotation IS rotx
+          children 
+          [
+# REPLACE FOLLOWING LINES WITH YOUR OWN VEHICLE MODEL
+#
+# The following lines build a shape to represent the x,y and z axes
+# The transparency of all shapes are set by the field in the PROTO definition
+# The color of the cylinders along each axis is also set by the PROTO defn
+# while the color of the cones at the tip of each axis are hard coded - 
+# red for x axis, green for y axis and blue for z axis.
+            Shape 
+            {
+              appearance DEF axesApp Appearance 
+              { 
+                material Material 
+                { 
+                  diffuseColor IS color 
+                  transparency IS transparency 
+                } 
+              }
+              geometry Sphere{radius 0.075}
+            }
+            Transform 
+            {
+              translation 0.4 0 0
+              rotation 0 0 1 -1.5701
+              children
+              [
+                Shape 
+                {
+                  appearance	USE axesApp
+                  geometry DEF cylGeom Cylinder { radius 0.075 height 0.8 }
+                }
+                Transform 
+                {
+                  translation 0 0.45 0
+                  children Shape 
+                  {
+                    appearance Appearance
+                    { 
+                      material Material 
+                      { 
+                        transparency IS transparency  
+                        diffuseColor 0.6 0.1 0.1 
+                      } 
+                    }
+                    geometry DEF coneGeom Cone{bottomRadius 0.175 height 0.3}
+                  }
+                }
+              ]
+            }
+            Transform 
+            {
+              translation 0 0.4 0
+              children
+              [
+                Shape 
+                {
+                  appearance USE axesApp
+                  geometry   USE cylGeom
+                }
+                Transform 
+                {
+                  translation 0 0.45 0
+                  children Shape 
+                  {
+	              appearance Appearance
+                    { 
+                      material Material 
+                      { 
+                        transparency IS transparency  
+                        diffuseColor 0.1 0.6 0.1 
+                      } 
+                    }
+                    geometry USE coneGeom
+                  }
+                }
+              ]
+            }
+            Transform 
+            {
+              translation 0 0 0.4
+              rotation 1 0 0 1.5701
+              children
+              [
+                Shape 
+                {
+                  appearance USE axesApp
+                  geometry USE cylGeom
+                }
+                Transform 
+                {
+                  translation 0 0.45 0
+                  children Shape 
+                  {
+                    appearance Appearance
+                    { 
+                      material Material 
+                      { 
+                        transparency IS transparency  
+                        diffuseColor 0.1 0.1 0.6 
+                      } 
+                    }
+                    geometry USE coneGeom
+                  }
+                }
+              ]
+            }
+
+# REPLACE PRECEEDING LINES WITH YOUR OWN VEHICLE MODEL
+          ]
+        }
+      }
+    }
+  }
+}
+
+}

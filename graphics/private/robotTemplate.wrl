@@ -1,0 +1,183 @@
+#VRML V2.0 utf8 
+#
+# Prototype for two degree-of-freedom manipulator with two revolute joints
+# Designed for use with VRMLplot version 1.1
+#
+# To use with VRMLplot.m, pass VRMLplot a matrix containing 3 columns and
+# ask it to use that matrix to animate this file.
+#
+# The order of the columns in the input matrix is:
+# 1. time (seconds)
+# 2. rotation angle for joint 1 (radians)
+# 3. rotation angle for joint 2 (radians)
+#
+# Example:
+#
+# >> L = [ 0  0    0;
+#          1  pi/2 0;
+#          2  pi/2 pi/2;
+#          4  0    0 ];
+#
+# >> VRMLplot(L,'animation=robotTemplate.wrl')
+#
+# This generates an animation which rotates joint 1 by pi/2 radians
+# in the first second, rotates joint 2 by pi/2 radians during the next
+# second and then moves back to the starting position.
+#
+# Note - the name of the PROTO at the top of this file must be the same as the
+# filename for this file (minus the .wrl extension) - otherwise VRMLplot won't
+# parse it correctly.
+#
+# To use your own robot model:
+# 1)  save this file under a new name: "yourNewFilename.wrl"
+# 2)  change "PROTO robotTemplate" to "PROTO yourNewFilename"
+# 3)  Then edit the PROTO definition - add an evenIn for each joint
+#     you wish to animate.  Field types can be either SFRotation or 
+#     SFTranslation, field labels should end in either transxyz, transx,
+#     transy, transz, rotx, roty or rotz.  VRMLplot uses the field type and the
+#     end of the field label to determine the mappings between input columns
+#     and events.  For example, in the case of an event:
+#       eventIn SFRotation test_rotx
+#     it will create an orientation interpolator with rotation about the
+#     x axis and use the values from one column of the input matrix to
+#     specify the angle of rotation.
+# 4)  Next create a model of your own articulated structure using the event
+#     labels in places where you wish a motion to occur.  For example, the
+#     following will rotate its children about the xaxis using the eventIn
+#     defined above.
+#
+#     Transform
+#     {
+#       set_rotation IS test_rotx
+#       children [ ... ]
+#     }
+#
+#     If you use the PROTO field values for transparency and color in your
+#     model then VRMLplot will be able to do a better job of automatically
+#     coloring and adding shadows.
+#
+# This file may be freely copied and altered BUT IF YOU CHANGE IT, 
+# PLEASE RENAME IT AND COMMENT THE CHANGES
+# Copyright Craig Sayers and WHOI 1996.
+#
+Group{
+PROTO robotTemplate [ field SFColor color 0.3 0.3 0.3
+   field SFFloat transparency 0.0
+   eventIn SFRotation joint1_rotz
+   eventIn SFRotation joint2_rotz
+]
+{
+  Transform 
+  {
+    children	
+    [
+      Transform 
+      {
+        translation 0 0 0.035
+        children Shape 
+        {
+	  appearance DEF defaultApp Appearance 
+          {
+	    material Material 
+            {
+	      diffuseColor      IS color
+	      transparency	IS transparency
+	    }
+	  }
+	  geometry Box
+          {
+	    size 0.21 0.21 0.07
+	  }
+        }
+      }
+      DEF joint1 Transform 
+      {
+        translation 0 0 0.12
+        set_rotation IS joint1_rotz
+	children	
+        [
+	  Transform 
+          {
+	    rotation	1 0 0  1.57
+            children Shape 
+            {
+              appearance DEF link1App Appearance 
+              {
+	        material Material 
+                {
+                  diffuseColor      IS color
+                  transparency	IS transparency
+                }
+              }
+	      geometry Cylinder { radius 0.1 height 0.1 }
+            }
+          }
+	  Transform 
+          {
+	    translation	0.5 0 0
+	    rotation	0 0 1  1.57
+	    children Shape 
+            {
+	      appearance USE link1App
+              geometry Cylinder { radius 0.05 height 0.85 }
+            }
+	  }
+
+	  Transform 
+          {
+            translation 1 0 0
+	    children 
+            [
+              Transform 
+              {
+                translation 0 0 0.025
+                rotation	1 0 0  1.57
+                children Shape 
+                {
+	          appearance USE link1App
+                  geometry Cylinder { radius 0.1 height 0.05 }
+                }
+              }
+              DEF joint2 Transform 
+              {
+                set_rotation IS joint2_rotz
+	        children	
+                [
+                  Transform 
+                  {
+                    translation 0 0 -0.025
+	            rotation	1 0 0  1.57
+                    children Shape 
+                    {
+                      appearance DEF link2App Appearance 
+                      {
+                        material Material 
+                        {
+                          diffuseColor      IS color
+                          transparency	IS transparency
+                        }
+                      }
+                      geometry Cylinder { radius 0.1 height 0.05 }
+                    }
+                  }
+                  Transform 
+                  {
+	            translation	0.525 0 0
+                    rotation	0 0 1  1.57
+                    children Shape 
+                    {
+                      appearance USE link2App
+                      geometry Cylinder { radius 0.05 height 0.95 }
+                    }
+                  }
+	        ]
+              }
+            ]
+	  }
+	]
+      }
+    ]
+  }
+}
+
+}
